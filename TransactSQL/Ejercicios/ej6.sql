@@ -37,7 +37,35 @@
 					ROLLBACK 
 				END
 		END
+		
+/* =========================================================================================
+	   							AMPLIACION DEL EJERCICIO 6:
+		creacion del trigger para la actualizacion y eliminacion en la tabla asignatura,
+		para que no se puedan borrar o editar asignaturas que ya existan en otras tablas.
+	========================================================================================*/
 
-	-- creacion del trigger para la actualizacion y eliminacion en la tabla asignatura,
-	-- para que no se puedan borrar o editar asignaturas que ya existan en otras tablas.
+	IF OBJECT_ID ('trigger3') IS NOT NULL
+	   DROP TRIGGER trigger3
+	GO
 
+	CREATE TRIGGER trigger3
+	   ON  asignatura
+	   AFTER DELETE, UPDATE
+	AS
+		BEGIN
+			DECLARE @contador smallint
+			-- Ejercicio aqu�
+			SELECT @contador=COUNT(matricula.id_asignatura)
+			FROM matricula JOIN deleted
+			ON matricula.id_asignatura = deleted.id_asignatura
+
+			IF (@contador != 0)
+				BEGIN
+				PRINT 'la asignatura ya se esta impartiendo, no se puede borrar'
+				ROLLBACK
+				END
+			ELSE 
+				BEGIN
+					PRINT 'borrando asignaturas'
+				END
+		END
